@@ -1,5 +1,4 @@
 ---
 - hosts: proxmox
   roles:
-    - proxmox
     - common

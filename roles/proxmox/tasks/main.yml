@@ -1,8 +1,0 @@
----
-- name: configure apt to use community sources
-  apt_repository:
-    repo: deb http://download.proxmox.com/debian buster pve-no-subscription
-    state: present
-  apt_repository:
-    repo: deb https://enterprise.proxmox.com/debian/pve stretch pve-enterprise
-    state: absent
