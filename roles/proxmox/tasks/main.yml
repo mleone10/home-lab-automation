@@ -1,6 +1,7 @@
 ---
-- name: download latest vm cloud image
-  include_tasks: downloadLatestVmCloudImage.yml
+- name: prepare host for template creation
+  include_tasks: prepareHost.yml
+
 - name: create vm templates
   include_tasks: createVmTemplate.yml
   with_items: "{{ templateDetails }}"

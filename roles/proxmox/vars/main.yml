@@ -1,6 +1,7 @@
 ---
 pveHostName: castle01
 templateImage: debian-10-openstack-amd64.qcow2
+vmUser: mleone
 templateDetails:
   - templateId: 1000
     templateName: template00-small

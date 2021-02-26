@@ -13,3 +13,11 @@
     url: https://cdimage.debian.org/cdimage/openstack/current/{{ templateImage }}
     dest: /tmp/{{ templateImage }}
     checksum: "sha256:{{ checksum.stdout }}"
+
+- name: copy public key to host
+  copy:
+    src: ./sshkey.pub
+    dest: /tmp/sshkey.pub
+    owner: root
+    group: root
+    mode: 0644
