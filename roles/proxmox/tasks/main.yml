@@ -1,0 +1,7 @@
+---
+- name: download latest vm cloud image
+  include_tasks: downloadLatestVmCloudImage.yml
+- name: create vm templates
+  include_tasks: createVmTemplate.yml
+  with_items: "{{ templateDetails }}"
+# TODO: initialize VMs as needed

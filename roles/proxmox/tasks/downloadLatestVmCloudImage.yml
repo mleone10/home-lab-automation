@@ -1,0 +1,15 @@
+---
+- name: get latest debian checksums
+  get_url:
+    url: https://cdimage.debian.org/cdimage/openstack/current/SHA256SUMS
+    dest: /tmp
+
+- name: find signature for target image
+  shell: grep ".*{{ templateImage }}$" /tmp/SHA256SUMS | awk '{print $1}'
+  register: checksum
+
+- name: get latest debian 10 cloud image and verify against signature
+  get_url:
+    url: https://cdimage.debian.org/cdimage/openstack/current/{{ templateImage }}
+    dest: /tmp/{{ templateImage }}
+    checksum: "sha256:{{ checksum.stdout }}"

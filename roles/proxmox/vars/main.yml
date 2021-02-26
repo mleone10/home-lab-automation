@@ -1,0 +1,16 @@
+---
+pveHostName: castle01
+templateImage: debian-10-openstack-amd64.qcow2
+templateDetails:
+  - templateId: 1000
+    templateName: template00-small
+    cpuCores: 1
+    memory: 1024
+  - templateId: 1001
+    templateName: template01-medium
+    cpuCores: 2
+    memory: 2048
+  - templateId: 1002
+    templateName: template02-large
+    cpuCores: 4
+    memory: 4096

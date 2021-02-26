@@ -1,21 +1,13 @@
 ---
-- name: determine if host is a proxmox host
-  stat:
-    path: /etc/pve
-  register: proxmox_files
-- name: configure apt to use community sources
-  apt_repository:
-    repo: deb http://download.proxmox.com/debian buster pve-no-subscription
-    state: present
-  apt_repository:
-    repo: deb https://enterprise.proxmox.com/debian/pve stretch pve-enterprise
-    state: absent
-  when: proxmox_files.stat.exists
+- name: update proxmox sources
+  import_tasks: setUpProxmoxSources.yml
+
 - name: update host
   apt:
     update_cache: true
     cache_valid_time: 3600
     upgrade: dist
+
 - name: trigger reboot
   command: "true"
   notify: reboot
