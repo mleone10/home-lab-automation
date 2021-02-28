@@ -1,5 +1,4 @@
 ---
-# Original implementation by Faranoosh: https://gitlab.com/itnoobs-automation/ansible/proxmox-template
 - name: check if vm template exists
   stat:
     path: /etc/pve/nodes/{{ pveHostName }}/qemu-server/{{ item.templateId }}.conf
@@ -12,9 +11,9 @@
     qm set {{ item.templateId }} --scsihw virtio-scsi-pci --virtio0 local-lvm:vm-{{ item.templateId }}-disk-0
     qm set {{ item.templateId }} --memory {{ item.memory }} --cores {{ item.cpuCores }} --name {{ item.templateName }}
     qm set {{ item.templateId }} --ciuser {{ vmUser }} --sshkeys /tmp/sshkey.pub --ipconfig0 ip=dhcp
+    qm resize {{ item.templateId }} virtio0 {{ item.diskSize }}
   when: template.stat.exists
 
-# TODO: set disk space per VM size
 - name: create template vm
   shell: |
     qm create {{ item.templateId }} --memory {{ item.memory }} --net0 virtio,bridge=vmbr0 --cores {{ item.cpuCores }} -hotplug network,disk,cpu,memory --numa 1 --agent 1 --name {{ item.templateName }} --ostype l26
@@ -24,5 +23,6 @@
     qm set {{ item.templateId }} --boot c --bootdisk virtio0
     qm set {{ item.templateId }} --serial0 socket
     qm set {{ item.templateId }} --ciuser {{ vmUser }} --sshkeys /tmp/sshkey.pub --ipconfig0 ip=dhcp
+    qm resize {{ item.templateId }} virtio0 {{ item.diskSize }}
     qm template {{ item.templateId }}
   when: not template.stat.exists

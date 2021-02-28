@@ -7,11 +7,14 @@ templateDetails:
     templateName: template00-small
     cpuCores: 1
     memory: 1024
+    diskSize: 16G
   - templateId: 1001
     templateName: template01-medium
     cpuCores: 2
     memory: 2048
+    diskSize: 32G
   - templateId: 1002
     templateName: template02-large
     cpuCores: 4
     memory: 4096
+    diskSize: 64G
