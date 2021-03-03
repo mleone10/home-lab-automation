@@ -1,5 +1,4 @@
 ---
-localRoot: /var/pve/vz
 pveHost: pve01
 vmUser: debian
 sshKeyFile: ./sshKey.pub
