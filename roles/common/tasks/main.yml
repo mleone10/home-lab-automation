@@ -10,4 +10,5 @@
 
 - name: trigger reboot
   command: "true"
+  changed_when: false
   notify: reboot

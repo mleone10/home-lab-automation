@@ -1,10 +1,47 @@
-# Much of this implementation by Faranoosh: https://gitlab.com/itnoobs-automation/ansible/proxmox-template
+# Much of this implementation by Faranoosh: https://gitlab.com/itnoobs-automation/ansible
 ---
-- name: prepare host for template creation
-  include_tasks: prepareHost.yml
+- name: get latest debian checksums
+  get_url:
+    url: https://cdimage.debian.org/cdimage/openstack/current/SHA256SUMS
+    dest: /tmp
+
+- name: find signature for target image
+  shell: grep ".*{{ templateImage }}$" /tmp/SHA256SUMS | awk '{print $1}'
+  changed_when: false
+  register: checksum
+
+- name: get latest debian 10 cloud image and verify against signature
+  get_url:
+    url: https://cdimage.debian.org/cdimage/openstack/current/{{ templateImage }}
+    dest: /tmp/{{ templateImage }}
+    checksum: "sha256:{{ checksum.stdout }}"
+  register: baseImage
+
+- name: copy public key to host
+  copy:
+    src: "{{ sshKeyFile }}"
+    dest: /tmp/sshkey.pub
+    owner: root
+    group: root
+    mode: 0644
+
+- name: copy user data script to host
+  template:
+    src: vmUserData.yml.j2
+    dest: /var/lib/vz/snippets/vmUserData.yml
+  vars:
+    sshKey: "{{ lookup('file', sshKeyFile) }}"
 
 - name: create vm templates
   include_tasks: createVmTemplate.yml
   with_items: "{{ templateDetails }}"
-# TODO: initialize VMs as needed
-# TODO: need to install QEMU guest agent on all new VMs - this role or another?  Somehow put into template?  (apt install qemu-guest-agent && systemctl start qemu-guest-agent)
+  vars:
+    updateTemplateImage: "{{ baseImage.changed }}"
+
+- name: create vms
+  include_tasks: createVm.yml
+  with_items: "{{ vmDetails }}"
+
+- name: wait for vms to come online
+  pause:
+    seconds: 25

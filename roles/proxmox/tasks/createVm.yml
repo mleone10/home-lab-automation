@@ -1,0 +1,21 @@
+---
+- name: list existing vms
+  shell: qm list | awk '{ print $1 }'
+  changed_when: false
+  register: vmIds
+
+# TODO: Delete and recreate vms, to ensure cleanliness
+- name: create vm if absent
+  shell: |
+    qm clone {{ item.templateId }} {{ item.vmId }} --full 1 --name {{ item.name }}
+  when: item.vmId|string not in vmIds.stdout_lines
+
+- name: check if vm is already running
+  shell: qm status {{ item.vmId }} | grep -q running
+  register: vmRunning
+  failed_when: vmRunning.rc > 1
+  changed_when: false
+
+- name: start vm
+  shell: qm start {{ item.vmId }}
+  when: vmRunning.rc

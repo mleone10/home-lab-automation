@@ -1,7 +1,8 @@
 ---
-- hosts: all
-  roles:
-    - common
 - hosts: proxmox
   roles:
+    - common
     - proxmox
+- hosts: dns
+  roles:
+    - common
