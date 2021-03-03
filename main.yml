@@ -1,5 +1,6 @@
 ---
 - hosts: proxmox
+  remote_user: root
   roles:
     - proxmox
 

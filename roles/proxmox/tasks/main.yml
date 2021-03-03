@@ -46,13 +46,13 @@
   copy:
     src: "{{ sshKeyFile }}"
     dest: /tmp/sshkey.pub
-    owner: root
-    group: root
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     mode: 0644
 
 - name: add ssh key to authorized_keys file
   lineinfile:
-    path: /root/.ssh/authorized_keys
+    path: /{{ ansible_user }}/.ssh/authorized_keys
     state: present
     line: "{{ lookup('file', sshKeyFile) }}"
 
