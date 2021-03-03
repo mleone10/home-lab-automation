@@ -7,3 +7,4 @@
 - hosts: dns
   roles:
     - common
+    - dns
