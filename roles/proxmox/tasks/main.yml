@@ -1,5 +1,30 @@
 # Much of this implementation by Faranoosh: https://gitlab.com/itnoobs-automation/ansible
 ---
+- name: enable community sources
+  apt_repository:
+    repo: deb http://download.proxmox.com/debian buster pve-no-subscription
+    state: present
+
+- name: disable enterprise sources
+  apt_repository:
+    repo: deb https://enterprise.proxmox.com/debian/pve stretch pve-enterprise
+    state: absent
+
+- name: update host
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+    upgrade: dist
+
+- name: check if reboot is required
+  stat:
+    path: /var/run/reboot-required
+  register: reboot
+
+- name: reboot if required
+  reboot:
+  when: reboot.stat.exists
+
 - name: get latest debian checksums
   get_url:
     url: https://cdimage.debian.org/cdimage/openstack/current/SHA256SUMS
@@ -24,6 +49,12 @@
     owner: root
     group: root
     mode: 0644
+
+- name: add ssh key to authorized_keys file
+  lineinfile:
+    path: /root/.ssh/authorized_keys
+    state: present
+    line: "{{ lookup('file', sshKeyFile) }}"
 
 - name: copy user data script to host
   template:
