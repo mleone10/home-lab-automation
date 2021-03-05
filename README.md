@@ -7,5 +7,5 @@
 Given a propertly configured Proxmox host, the following will instantiate the entire home lab system from scratch:
 
 ```bash
-ansible-playbook -i hosts.yml main.yml --ask-pass
+ansible-playbook main.yml --ask-become-pass
 ```

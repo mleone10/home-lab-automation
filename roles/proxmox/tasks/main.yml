@@ -72,7 +72,3 @@
 - name: create vms
   include_tasks: createVm.yml
   with_items: "{{ vmDetails }}"
-
-- name: wait for vms to come online
-  pause:
-    seconds: 25

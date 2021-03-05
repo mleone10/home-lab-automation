@@ -1,4 +1,4 @@
 ---
 pveHost: pve01
 vmUser: debian
-sshKeyFile: ./sshKey.pub
+sshKeyFile: files/sshKey.pub

@@ -13,6 +13,7 @@
 # TODO: find a way to truly detect if this block is changed
 - name: update existing template properties
   shell: |
+    qm set {{ item.templateId }} --scsihw virtio-scsi-pci --virtio0 local-lvm:vm-{{ item.templateId }}-disk-0
     qm set {{ item.templateId }} --memory {{ item.memory }} --cores {{ item.cpuCores }} --name {{ item.templateName }}
     qm set {{ item.templateId }} --ipconfig0 ip=dhcp --cicustom "user=local:snippets/vmUserData.yml"
     qm resize {{ item.templateId }} virtio0 {{ item.diskSize }}

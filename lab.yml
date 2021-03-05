@@ -1,0 +1,8 @@
+---
+- import_playbook: playbooks/pve.yml
+- hosts: localhost
+  tasks:
+    - name: wait for vms to stabilize
+      pause:
+        seconds: 25
+- import_playbook: playbooks/dns.yml

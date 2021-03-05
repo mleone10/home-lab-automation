@@ -2,7 +2,6 @@
 pveHost: castle01
 templateImage: debian-10-openstack-amd64.qcow2
 vmUser: mleone
-sshKeyFile: ./sshkey.pub
 templateDetails:
   - templateId: &templateSmall 1000
     templateName: template00-small
