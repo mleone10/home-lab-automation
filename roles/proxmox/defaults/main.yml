@@ -1,4 +1,5 @@
 ---
 pveHost: pve01
+templateImage: debian-10-openstack-amd64.qcow2
 vmUser: debian
-sshKeyFile: files/sshKey.pub
+sshKeyFile: sshKey.pub
