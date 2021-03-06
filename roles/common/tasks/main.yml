@@ -5,6 +5,19 @@
     cache_valid_time: 3600
     upgrade: dist
 
+- name: install required packages
+  apt:
+    name: sudo
+    state: present
+
+- name: allow passwordless sudo
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: "^%sudo"
+    line: "%sudo ALL=(ALL) NOPASSWD: ALL"
+    validate: "visudo -cf %s"
+
 - name: check if reboot is required
   stat:
     path: /var/run/reboot-required

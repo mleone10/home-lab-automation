@@ -1,6 +1,8 @@
+#!/usr/bin/ansible-playbook
 ---
 - import_playbook: playbooks/pve.yml
 - hosts: localhost
+  gather_facts: false
   tasks:
     - name: wait for vms to stabilize
       pause:
