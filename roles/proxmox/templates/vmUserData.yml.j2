@@ -3,7 +3,9 @@ hostname: dns
 manage_etc_hosts: true
 user: {{ vmUser }}
 ssh_authorized_keys:
+{% for sshKey in sshKeys %}
   - {{ sshKey }}
+{% endfor %}
 chpasswd:
   expire: false
 users:

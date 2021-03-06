@@ -42,26 +42,34 @@
     checksum: "sha256:{{ checksum.stdout }}"
   register: baseImage
 
-- name: copy public key to host
+- name: copy public keys to host
   copy:
-    src: "{{ sshKeyFile }}"
-    dest: /tmp/sshkey.pub
+    src: "{{ item }}"
+    dest: /tmp/{{ item | basename }}
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0644
+  with_items: "{{ lookup('fileglob', 'sshKey*', wantlist=true) }}"
 
-- name: add ssh key to authorized_keys file
+- name: add ssh keys to authorized_keys file
   lineinfile:
     path: /{{ ansible_user }}/.ssh/authorized_keys
     state: present
-    line: "{{ lookup('file', sshKeyFile) }}"
+    line: "{{ lookup('file', item) }}"
+  with_items: "{{ lookup('fileglob', 'sshKey*', wantlist=true) }}"
+
+- name: read ssh keys from key files
+  shell: echo {{ lookup('file', item) }}
+  register: "sshKeyOutput"
+  with_fileglob: "{{ lookup('fileglob', 'sshKey*', wantlist=true) }}"
+  changed_when: false
 
 - name: copy user data script to host
   template:
     src: vmUserData.yml.j2
     dest: /var/lib/vz/snippets/vmUserData.yml
   vars:
-    sshKey: "{{ lookup('file', sshKeyFile) }}"
+    sshKeys: "{{ sshKeyOutput.results | map(attribute='stdout') | list }}"
 
 - name: create vm templates
   include_tasks: createVmTemplate.yml
