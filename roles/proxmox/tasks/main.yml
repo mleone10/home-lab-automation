@@ -110,3 +110,19 @@
 - name: configure template disk size
   command: qm resize {{ item.templateId }} virtio0 {{ item.diskSize }}
   with_items: "{{ templateDetails }}"
+
+- name: stop vms
+  command: qm stop {{ item.vmId }}
+  with_items: "{{ vmDetails }}"
+
+- name: delete vms
+  command: qm destroy {{ item.vmId }} --purge
+  with_items: "{{ vmDetails }}"
+
+- name: create vms
+  command: qm clone {{ item.templateId }} {{ item.vmId }} --full 1 --name {{ item.name }}
+  with_items: "{{ vmDetails }}"
+
+- name: start vms
+  command: qm start {{ item.vmId }}
+  with_items: "{{ vmDetails }}"
