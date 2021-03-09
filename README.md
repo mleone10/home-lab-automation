@@ -2,10 +2,22 @@
 
 > Ansible playbooks to fully configure my personal home lab.
 
-## Usage
+## Prerequisites
 
-Given a propertly configured Proxmox host, the following will instantiate the entire home lab system from scratch:
+The host running these playbooks must have `ansible` installed.
 
 ```bash
-ansible-playbook main.yml --ask-become-pass
+apt install ansible
 ```
+
+Additionally, the target Proxmox host should have already been configured with a DNS-recognized hostname ("castle01").
+
+## Usage
+
+The following will instantiate the entire home lab system from scratch:
+
+```bash
+./lab.yml
+```
+
+This works because the `lab.yml` playbook has been made executable and has a shebang pointing to `ansible-playbook`. Individual playbooks found in the `playbooks` directory can similarly be executed.

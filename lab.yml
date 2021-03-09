@@ -1,4 +1,4 @@
-#!/usr/bin/ansible-playbook
+#!/usr/bin/env ansible-playbook
 ---
 - import_playbook: playbooks/pve.yml
 - hosts: localhost
