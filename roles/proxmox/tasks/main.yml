@@ -64,13 +64,6 @@
   with_fileglob: "{{ lookup('fileglob', 'sshKey*', wantlist=true) }}"
   changed_when: false
 
-- name: copy user data script to host
-  template:
-    src: vmUserData.yml.j2
-    dest: /var/lib/vz/snippets/vmUserData.yml
-  vars:
-    sshKeys: "{{ sshKeyOutput.results | map(attribute='stdout') | list }}"
-
 - name: create templates
   command:
     cmd: qm create {{ item.templateId }} --net0 virtio,bridge=vmbr0 -hotplug network,disk,cpu,memory --numa 1 --agent 1 --ostype l26 --template
@@ -100,7 +93,7 @@
 - name: configure template cloud-init
   shell: |
     qm unlink {{ item.templateId }} --idlist ide2 --force
-    qm set {{ item.templateId }} --ide2 local-lvm:cloudinit --cicustom "user=local:snippets/vmUserData.yml"
+    qm set {{ item.templateId }} --ide2 local-lvm:cloudinit
   with_items: "{{ templateDetails }}"
 
 - name: configure template behavior
@@ -110,6 +103,15 @@
 - name: configure template disk size
   command: qm resize {{ item.templateId }} virtio0 {{ item.diskSize }}
   with_items: "{{ templateDetails }}"
+
+- name: copy user data script to host
+  template:
+    src: vmUserData.yml.j2
+    dest: /var/lib/vz/snippets/{{ item.name }}UserData.yml
+  vars:
+    sshKeys: "{{ sshKeyOutput.results | map(attribute='stdout') | list }}"
+    host: "{{ item.name }}"
+  with_items: "{{ vmDetails }}"
 
 - name: stop vms
   command: qm stop {{ item.vmId }}
@@ -121,6 +123,10 @@
 
 - name: create vms
   command: qm clone {{ item.templateId }} {{ item.vmId }} --full 1 --name {{ item.name }}
+  with_items: "{{ vmDetails }}"
+
+- name: set custom user data
+  command: qm set {{ item.vmId }} --cicustom "user=local:snippets/{{ item.name }}UserData.yml"
   with_items: "{{ vmDetails }}"
 
 - name: start vms

@@ -1,5 +1,6 @@
 #cloud-config
 manage_etc_hosts: true
+hostname: {{ host }}
 user: {{ vmUser }}
 ssh_authorized_keys:
 {% for sshKey in sshKeys %}
