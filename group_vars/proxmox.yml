@@ -22,4 +22,7 @@ templateDetails:
 vmDetails:
   - vmId: 100
     templateId: *templateSmall
-    name: dns
+    name: net
+  - vmId: 200
+    templateId: *templateSmall
+    name: factorio

@@ -1,6 +1,6 @@
 #!/usr/bin/env ansible-playbook
 ---
-- hosts: dns
+- hosts: net
   roles:
     - common
-    - dns
+    - net

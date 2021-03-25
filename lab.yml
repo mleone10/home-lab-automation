@@ -7,4 +7,4 @@
     - name: wait for vms to stabilize
       pause:
         seconds: 25
-- import_playbook: playbooks/dns.yml
+- import_playbook: playbooks/net.yml

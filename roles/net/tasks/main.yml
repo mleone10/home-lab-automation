@@ -1,0 +1,13 @@
+---
+- name: install required packages
+  package:
+    name:
+      - curl
+    state: present
+
+- name: set up dynamic DNS
+  cron:
+    name: dynamicDns
+    state: present
+    minute: "*/5"
+    job: "curl https://{{ googleDomainsUser }}:{{ googleDomainsPassword }}@domains.google.com/nic/update?hostname=mleone.dev 2>&1 | /usr/bin/logger -t ddns"

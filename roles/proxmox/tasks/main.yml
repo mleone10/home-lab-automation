@@ -116,10 +116,12 @@
 - name: stop vms
   command: qm stop {{ item.vmId }}
   with_items: "{{ vmDetails }}"
+  failed_when: false
 
 - name: delete vms
   command: qm destroy {{ item.vmId }} --purge
   with_items: "{{ vmDetails }}"
+  failed_when: false
 
 - name: create vms
   command: qm clone {{ item.templateId }} {{ item.vmId }} --full 1 --name {{ item.name }}
