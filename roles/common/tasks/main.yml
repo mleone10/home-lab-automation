@@ -7,7 +7,9 @@
 
 - name: install required packages
   apt:
-    name: sudo
+    name:
+      - sudo
+      - unzip
     state: present
 
 - name: allow passwordless sudo
@@ -17,6 +19,29 @@
     regexp: "^%sudo"
     line: "%sudo ALL=(ALL) NOPASSWD: ALL"
     validate: "visudo -cf %s"
+
+- name: download AWS CLI installer
+  unarchive:
+    src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+    dest: /tmp
+    remote_src: yes
+    creates: /tmp/aws
+    mode: 0755
+
+- name: install the AWS CLI
+  command:
+    cmd: /tmp/aws/install
+    creates: /usr/local/bin/aws
+
+- name: configure the AWS CLI
+  shell: aws configure set {{ item.key }} {{ item.value }}
+  no_log: true
+  with_dict:
+    aws_access_key_id: "{{ awsAccessKeyId }}"
+    aws_secret_access_key: "{{ awsAccessKey }}"
+    region: us-east-1
+    format: json
+  changed_when: false
 
 - name: check if reboot is required
   stat:
