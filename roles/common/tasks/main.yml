@@ -9,6 +9,7 @@
   apt:
     name:
       - sudo
+      - zip
       - unzip
     state: present
 
@@ -42,6 +43,41 @@
     region: us-east-1
     format: json
   changed_when: false
+
+- name: check if backup exists in S3
+  command:
+    cmd: aws s3 ls s3://{{ backupS3Bucket }}/{{ inventory_hostname }}.zip
+  register: backupFound
+  failed_when: false
+  changed_when: false
+
+- name: download backup from S3
+  command:
+    cmd: aws s3 cp s3://{{ backupS3Bucket }}/{{ inventory_hostname }}.zip /tmp/backup.zip
+    creates: /tmp/backup.zip
+  when: backupFound.rc == 0
+
+- name: restore backup from S3
+  unarchive:
+    src: /tmp/backup.zip
+    dest: /
+    remote_src: yes
+    creates: /backup
+  when: backupFound.rc == 0
+
+- name: create backup directory if it doesn't already exist
+  file:
+    path: /backup
+    state: directory
+    mode: 0755
+
+- name: configure daily backup to S3
+  cron:
+    name: backup
+    state: present
+    minute: 0
+    hour: 2
+    job: "zip -r - /backup | aws s3 cp - s3://{{ backupS3Bucket }}/{{ inventory_hostname }}.zip"
 
 - name: check if reboot is required
   stat:
