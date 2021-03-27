@@ -21,6 +21,10 @@
     line: "%sudo ALL=(ALL) NOPASSWD: ALL"
     validate: "visudo -cf %s"
 
+- name: set timezone
+  timezone:
+    name: America/New_York
+
 - name: download AWS CLI installer
   unarchive:
     src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
@@ -77,7 +81,7 @@
     state: present
     minute: 0
     hour: 2
-    job: "zip -r - /backup | aws s3 cp - s3://{{ backupS3Bucket }}/{{ inventory_hostname }}.zip"
+    job: "zip -r - /backup | /usr/local/bin/aws s3 cp - s3://{{ backupS3Bucket }}/{{ inventory_hostname }}.zip 2>&1 | /usr/bin/logger -t backup"
 
 - name: check if reboot is required
   stat:
