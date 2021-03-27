@@ -1,0 +1,7 @@
+#!/usr/bin/env ansible-playbook
+---
+- hosts: factorio
+  roles:
+    - common
+    - docker
+    - factorio

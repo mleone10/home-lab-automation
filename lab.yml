@@ -8,3 +8,4 @@
       pause:
         seconds: 25
 - import_playbook: playbooks/net.yml
+- import_playbook: playbook/factorio.yml
