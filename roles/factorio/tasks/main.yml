@@ -1,1 +1,14 @@
 ---
+- name: start the factorio container
+  docker_container:
+    name: factorio
+    image: factoriotools/factorio
+    detach: true
+    restart_policy: always
+    interactive: true
+    tty: true
+    ports:
+      - 34197:34197/udp
+      - 27015:27015
+    volumes:
+      - /backup/factorio:/factorio

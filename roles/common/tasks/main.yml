@@ -80,7 +80,7 @@
     name: backup
     state: present
     minute: 0
-    hour: 2
+    hour: 3
     job: "zip -r - /backup | /usr/local/bin/aws s3 cp - s3://{{ backupS3Bucket }}/{{ inventory_hostname }}.zip 2>&1 | /usr/bin/logger -t backup"
 
 - name: check if reboot is required

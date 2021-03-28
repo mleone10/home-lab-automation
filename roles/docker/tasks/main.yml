@@ -6,6 +6,8 @@
       - ca-certificates
       - curl
       - gnupg
+      - python-pip
+      - python-backports.ssl-match-hostname
     state: present
 
 - name: add docker gpg key
@@ -25,3 +27,8 @@
       - docker-ce-cli
       - containerd.io
     update_cache: true
+
+- name: install the docker python library
+  pip:
+    name:
+      - docker-py
