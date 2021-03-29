@@ -1,0 +1,12 @@
+[Unit]
+Description=Backup files to S3 on shutdown
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStop=backup
+
+[Install]
+WantedBy=multi-user.target

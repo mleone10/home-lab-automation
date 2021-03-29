@@ -75,13 +75,35 @@
     state: directory
     mode: 0755
 
+- name: copy backup script to host
+  template:
+    src: backup.j2
+    dest: /usr/local/sbin/backup
+    owner: root
+    group: root
+    mode: 0744
+
 - name: configure daily backup to S3
   cron:
     name: backup
     state: present
     minute: 0
     hour: 3
-    job: "zip -r - /backup | /usr/local/bin/aws s3 cp - s3://{{ backupS3Bucket }}/{{ inventory_hostname }}.zip 2>&1 | /usr/bin/logger -t backup"
+    job: backup
+
+- name: configure backup on shutdown
+  copy:
+    src: backup.service
+    dest: /etc/systemd/system/backup.service
+    owner: root
+    group: root
+
+- name: reload systemd
+  systemd:
+    name: backup
+    enabled: true
+    state: started
+    daemon_reload: true
 
 - name: check if reboot is required
   stat:
