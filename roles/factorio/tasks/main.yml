@@ -1,14 +1,18 @@
 ---
-- name: start the factorio container
-  docker_container:
-    name: factorio
-    image: factoriotools/factorio
-    detach: true
-    restart_policy: always
-    interactive: true
-    tty: true
-    ports:
-      - 34197:34197/udp
-      - 27015:27015
-    volumes:
-      - /backup/factorio:/factorio
+- name: download factorio docker compose file
+  copy:
+    src: factorio-compose.yml
+    dest: /root/docker-compose.yml
+
+- name: start the factorio service
+  command:
+    cmd: docker-compose up -d
+    chdir: /root
+
+- name: configure nightly service update
+  cron:
+    name: updateFactorio
+    state: present
+    minute: 0
+    hour: 4
+    job: /usr/local/sbin/docker-compose pull && /usr/local/sbin/docker-compose up -d --force-recreate
