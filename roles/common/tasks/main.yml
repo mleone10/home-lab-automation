@@ -11,7 +11,13 @@
       - sudo
       - zip
       - unzip
+      - qemu-guest-agent
     state: present
+
+- name: start the qemu guest agent
+  systemd:
+    name: qemu-guest-agent
+    state: started
 
 - name: allow passwordless sudo
   lineinfile:

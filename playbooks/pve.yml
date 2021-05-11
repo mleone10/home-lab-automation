@@ -3,5 +3,4 @@
 - hosts: proxmox
   remote_user: root
   roles:
-    - common
     - proxmox
