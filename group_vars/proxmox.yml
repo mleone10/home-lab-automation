@@ -26,3 +26,6 @@ vmDetails:
   - vmId: 200
     templateId: *templateLarge
     name: factorio
+  - vmId: 201
+    templateId: *templateLarge
+    name: minecraft

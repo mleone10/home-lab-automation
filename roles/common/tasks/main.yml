@@ -105,11 +105,23 @@
     state: started
     daemon_reload: true
 
-- name: check if reboot is required
+- name: enable memory hotplugging
+  replace:
+    dest: /etc/default/grub
+    regexp: '^(GRUB_CMDLINE_LINUX_DEFAULT="(?!.*\bmemhp_default_state=online\b).*)"$'
+    replace: '\1 memhp_default_state=online"'
+  register: hotplugUpdate
+
+- name: update grub configuration
+  command:
+    cmd: update-grub
+  when: hotplugUpdate.changed
+
+- name: check if reboot is required by os
   stat:
     path: /var/run/reboot-required
   register: reboot
 
 - name: reboot if required
   reboot:
-  when: reboot.stat.exists
+  when: reboot.stat.exists or hotplugUpdate.changed
