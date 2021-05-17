@@ -1,15 +1,13 @@
 #cloud-config
 manage_etc_hosts: true
-hostname: {{ host }}
-user: {{ vmUser }}
-ssh_authorized_keys:
-{% for sshKey in sshKeys %}
-  - {{ sshKey }}
-{% endfor %}
 chpasswd:
   expire: false
 users:
-  - default
+  - name: {{ vmUser }}
+    ssh_authorized_keys:
+    {% for sshKey in sshKeys %}
+      - {{ sshKey }}
+    {% endfor %}
 package_upgrade: true
 runcmd:
   - dhclient -r && dhclient
