@@ -16,6 +16,9 @@
     cache_valid_time: 3600
     upgrade: dist
 
+- name: configure network interfaces
+  import_tasks: configureNetwork.yml
+
 - name: check if reboot is required
   stat:
     path: /var/run/reboot-required
