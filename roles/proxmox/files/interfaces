@@ -1,0 +1,14 @@
+# Proxmox host network interfaces
+
+auto lo
+iface lo inet loopback
+
+iface enp5s0 inet manual
+
+auto vmbr0
+iface vmbr0 inet static
+	address 192.168.86.133/24
+	gateway 192.168.86.1
+	bridge-ports enp5s0
+	bridge-stp off
+	bridge-fd 0
