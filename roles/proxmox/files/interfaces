@@ -3,12 +3,23 @@
 auto lo
 iface lo inet loopback
 
+# Physical NIC
+auto enp5s0
 iface enp5s0 inet manual
 
+# Bridge 1 - Physical NIC to Router VM
 auto vmbr0
 iface vmbr0 inet static
 	address 192.168.86.133/24
 	gateway 192.168.86.1
 	bridge-ports enp5s0
+	bridge-stp off
+	bridge-fd 0
+
+# Bridge 2 - Router VM to other VMs
+auto vmbr1
+iface vmbr1 inet static
+	address 10.0.10.0/24
+	bridge-ports none
 	bridge-stp off
 	bridge-fd 0

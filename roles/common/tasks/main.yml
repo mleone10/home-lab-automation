@@ -19,14 +19,6 @@
     name: qemu-guest-agent
     state: started
 
-- name: allow passwordless sudo
-  lineinfile:
-    path: /etc/sudoers
-    state: present
-    regexp: "^%sudo"
-    line: "%sudo ALL=(ALL) NOPASSWD: ALL"
-    validate: "visudo -cf %s"
-
 - name: set timezone
   timezone:
     name: America/New_York
