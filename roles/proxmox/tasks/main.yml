@@ -1,5 +1,5 @@
-# Much of this implementation by Faranoosh: https://gitlab.com/itnoobs-automation/ansible
 ---
+# Update OS packages
 - name: enable community sources
   apt_repository:
     repo: deb http://download.proxmox.com/debian buster pve-no-subscription
@@ -16,9 +16,22 @@
     cache_valid_time: 3600
     upgrade: dist
 
+# Configure key-based access
+- name: add ssh keys to authorized_keys file
+  lineinfile:
+    path: /{{ ansible_user }}/.ssh/authorized_keys
+    state: present
+    line: "{{ lookup('file', item) }}"
+  with_items: "{{ lookup('fileglob', 'sshKey*', wantlist=true) }}"
+
+# Import tasks from other files
 - name: configure network interfaces
   import_tasks: configureNetwork.yml
 
+- name: create vm templates
+  import_tasks: configureVmTemplates.yml
+
+# Reboot if required
 - name: check if reboot is required
   stat:
     path: /var/run/reboot-required
@@ -27,113 +40,3 @@
 - name: reboot if required
   reboot:
   when: reboot.stat.exists
-
-- name: get latest debian checksums
-  get_url:
-    url: https://cdimage.debian.org/cdimage/openstack/current/SHA256SUMS
-    dest: /tmp
-
-- name: find signature for target image
-  shell: grep ".*{{ templateImage }}$" /tmp/SHA256SUMS | awk '{print $1}'
-  changed_when: false
-  register: checksum
-
-- name: get latest debian 10 cloud image and verify against signature
-  get_url:
-    url: https://cdimage.debian.org/cdimage/openstack/current/{{ templateImage }}
-    dest: /tmp/{{ templateImage }}
-    checksum: "sha256:{{ checksum.stdout }}"
-  register: baseImage
-
-- name: copy public keys to host
-  copy:
-    src: "{{ item }}"
-    dest: /tmp/{{ item | basename }}
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: 0644
-  with_items: "{{ lookup('fileglob', 'sshKey*', wantlist=true) }}"
-
-- name: add ssh keys to authorized_keys file
-  lineinfile:
-    path: /{{ ansible_user }}/.ssh/authorized_keys
-    state: present
-    line: "{{ lookup('file', item) }}"
-  with_items: "{{ lookup('fileglob', 'sshKey*', wantlist=true) }}"
-
-- name: read ssh keys from key files
-  shell: echo {{ lookup('file', item) }}
-  register: "sshKeyOutput"
-  with_fileglob: "{{ lookup('fileglob', 'sshKey*', wantlist=true) }}"
-  changed_when: false
-
-- name: create templates
-  command:
-    cmd: qm create {{ item.templateId }} --net0 virtio,bridge=vmbr0 -hotplug network,disk,cpu,memory --numa 1 --agent 1 --ostype l26 --template
-    creates: /etc/pve/nodes/{{ pveHost }}/qemu-server/{{ item.templateId }}.conf
-  with_items: "{{ templateDetails }}"
-  register: vmCreation
-
-- name: set template base image
-  shell: |
-    qm unlink {{ item.item.templateId }} --idlist virtio0 --force
-    qm importdisk {{ item.item.templateId }} /tmp/{{ templateImage }} local-lvm
-  with_items: "{{ vmCreation.results }}"
-  when: baseImage.changed or item.changed
-
-- name: configure template names
-  command: qm set {{ item.templateId }} --name {{ item.templateName }}
-  with_items: "{{ templateDetails }}"
-
-- name: configure template hardware
-  command: qm set {{ item.templateId }} --memory {{ item.memory }} --cores {{ item.cpuCores }}
-  with_items: "{{ templateDetails }}"
-
-- name: configure template storage
-  command: qm set {{ item.templateId }} --scsihw virtio-scsi-pci --virtio0 local-lvm:vm-{{ item.templateId }}-disk-0
-  with_items: "{{ templateDetails }}"
-
-- name: configure template cloud-init
-  shell: |
-    qm unlink {{ item.templateId }} --idlist ide2 --force
-    qm set {{ item.templateId }} --ide2 local-lvm:cloudinit
-  with_items: "{{ templateDetails }}"
-
-- name: configure template behavior
-  command: qm set {{ item.templateId }} --boot c --bootdisk virtio0 --onboot 1 --serial0 socket
-  with_items: "{{ templateDetails }}"
-
-- name: configure template disk size
-  command: qm resize {{ item.templateId }} virtio0 {{ item.diskSize }}
-  with_items: "{{ templateDetails }}"
-
-- name: copy user data script to host
-  template:
-    src: vmUserData.yml.j2
-    dest: /var/lib/vz/snippets/{{ item.name }}UserData.yml
-  vars:
-    sshKeys: "{{ sshKeyOutput.results | map(attribute='stdout') | list }}"
-    host: "{{ item.name }}"
-  with_items: "{{ vmDetails }}"
-
-- name: stop vms
-  command: qm stop {{ item.vmId }}
-  with_items: "{{ vmDetails }}"
-  failed_when: false
-
-- name: delete vms
-  command: qm destroy {{ item.vmId }} --purge
-  with_items: "{{ vmDetails }}"
-  failed_when: false
-
-- name: create vms
-  command: qm clone {{ item.templateId }} {{ item.vmId }} --full 1 --name {{ item.name }}
-  with_items: "{{ vmDetails }}"
-
-- name: set custom user data
-  command: qm set {{ item.vmId }} --cicustom "user=local:snippets/{{ item.name }}UserData.yml"
-  with_items: "{{ vmDetails }}"
-
-- name: start vms
-  command: qm start {{ item.vmId }}
-  with_items: "{{ vmDetails }}"

@@ -19,13 +19,3 @@ templateDetails:
     cpuCores: 4
     memory: 4096
     diskSize: 64G
-vmDetails:
-  - vmId: 100
-    templateId: *templateSmall
-    name: net
-  - vmId: 200
-    templateId: *templateLarge
-    name: factorio
-  - vmId: 201
-    templateId: *templateLarge
-    name: minecraft
