@@ -3,9 +3,33 @@
   package:
     name:
       - curl
+      - dnsmasq
     state: present
 
-- name: set up dynamic DNS
+- name: copy network interfaces configuration
+  copy:
+    src: interfaces
+    dest: /etc/network/interfaces
+  register: interfaces
+
+- name: reload network
+  systemd:
+    name: networking
+    state: restarted
+
+- name: copy dnsmasq configuration
+  copy:
+    src: dnsmasq.conf
+    dest: /etc/dnsmasq.conf
+  register: dnsmasqConf
+
+- name: reload dnsmasq
+  systemd:
+    name: dnsmasq
+    state: restarted
+  when: dnsmasqConf.changed
+
+- name: set up dynamic DNS for lab domain
   cron:
     name: dynamicDns
     state: present

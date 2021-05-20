@@ -16,16 +16,6 @@
     checksum: "sha256:{{ checksum.stdout }}"
   register: baseImage
 
-# TODO: Remove this if not needed
-# - name: copy public keys to host
-#   copy:
-#     src: "{{ item }}"
-#     dest: /tmp/{{ item | basename }}
-#     owner: "{{ ansible_user }}"
-#     group: "{{ ansible_user }}"
-#     mode: 0644
-#   with_items: "{{ lookup('fileglob', 'sshKey*', wantlist=true) }}"
-
 - name: read ssh keys from key files
   shell: echo {{ lookup('file', item) }}
   register: "sshKeyOutput"
@@ -34,7 +24,7 @@
 
 - name: create templates
   command:
-    cmd: qm create {{ item.templateId }} --net0 virtio,bridge=vmbr0 -hotplug network,disk,cpu,memory --numa 1 --agent 1 --ostype l26 --template
+    cmd: qm create {{ item.templateId }} --hotplug network,disk,cpu,memory --numa 1 --agent 1 --ostype l26 --template
     creates: /etc/pve/nodes/{{ pveHost }}/qemu-server/{{ item.templateId }}.conf
   with_items: "{{ templateDetails }}"
   register: vmCreation
@@ -45,6 +35,10 @@
     qm importdisk {{ item.item.templateId }} /tmp/{{ templateImage }} local-lvm
   with_items: "{{ vmCreation.results }}"
   when: baseImage.changed or item.changed
+
+- name: configure template networks
+  command: qm set {{ item.templateId }} --net0 virtio,bridge=vmbr1 --nameserver 10.0.10.1
+  with_items: "{{ templateDetails }}"
 
 - name: configure template names
   command: qm set {{ item.templateId }} --name {{ item.templateName }}
