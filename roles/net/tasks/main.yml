@@ -4,8 +4,16 @@
     name:
       - curl
       - dnsmasq
+      - nginx
     state: present
 
+# IPTables
+- name: copy iptables configuration
+  copy:
+    src: iptables.rules
+    dest: /etc/iptables.rules
+
+# Network configuration
 - name: copy network interfaces configuration
   copy:
     src: interfaces
@@ -17,6 +25,7 @@
     name: networking
     state: restarted
 
+# DNSMasq configuration
 - name: copy dnsmasq configuration
   copy:
     src: dnsmasq.conf
@@ -29,6 +38,20 @@
     state: restarted
   when: dnsmasqConf.changed
 
+# Nginx configuration
+- name: copy nginx configuration
+  copy:
+    src: nginx.cfg
+    dest: /etc/nginx/nginx.conf
+  register: nginxConf
+
+- name: reload nginx
+  systemd:
+    name: nginx
+    state: restarted
+  when: nginxConf.changed
+
+# Dynamic DNS setup
 - name: set up dynamic DNS for lab domain
   cron:
     name: dynamicDns

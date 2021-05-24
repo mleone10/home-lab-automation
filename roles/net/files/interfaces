@@ -16,4 +16,4 @@ iface eth1 inet static
     broadcast 10.0.10.255
 
     post-up echo 1 > /proc/sys/net/ipv4/ip_forward
-    post-up iptables -t nat -A POSTROUTING -s '10.0.10.1/24' -o eth0 -j MASQUERADE
+    pre-up iptables-restore < /etc/iptables.rules
