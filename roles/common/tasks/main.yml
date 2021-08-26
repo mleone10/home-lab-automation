@@ -1,4 +1,11 @@
 ---
+- name: update authorized keys
+  authorized_key:
+    user: "{{ ansible_user }}"
+    state: present
+    key: "{{ item }}"
+  with_file: "{{ lookup('fileglob', '*.pub', wantlist=true) }}"
+
 - name: update host
   apt:
     update_cache: true
