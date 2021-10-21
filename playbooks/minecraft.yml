@@ -1,7 +1,0 @@
-#!/usr/bin/env ansible-playbook
----
-- hosts: minecraft
-  roles:
-    - common
-    - docker
-    - minecraft

@@ -1,132 +1,90 @@
 ---
-- name: update authorized keys
-  authorized_key:
-    user: "{{ ansible_user }}"
-    state: present
-    key: "{{ item }}"
-  with_file: "{{ lookup('fileglob', '*.pub', wantlist=true) }}"
-
 - name: update host
   apt:
     update_cache: true
-    cache_valid_time: 3600
-    upgrade: dist
+    upgrade: safe
+    autoremove: yes
 
-- name: install required packages
+- name: install essential packages
   apt:
-    name:
-      - sudo
-      - zip
-      - unzip
-      - qemu-guest-agent
-    state: present
+    name: "{{ item }}"
+    update_cache: true
+    cache_valid_time: 3600
+    state: latest
+  loop:
+    - sudo
+    - unattended-upgrades
 
-- name: start the qemu guest agent
-  systemd:
-    name: qemu-guest-agent
-    state: started
+- name: enable unattended upgrades
+  copy:
+    src: 10periodic
+    dest: /etc/apt/apt.conf.d/10periodic
+    owner: root
+    group: root
+    mode: 0644
 
 - name: set timezone
   timezone:
     name: America/New_York
+# - name: install required packages
+#   apt:
+#     name:
+#       - zip
+#     state: present
 
-- name: download AWS CLI installer
-  unarchive:
-    src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
-    dest: /tmp
-    remote_src: yes
-    creates: /tmp/aws
-    mode: 0755
+# - name: check if backup exists in S3
+#   command:
+#     cmd: aws s3 ls s3://{{ backupS3Bucket }}/{{ inventory_hostname }}.zip
+#   register: backupFound
+#   failed_when: false
+#   changed_when: false
 
-- name: install the AWS CLI
-  command:
-    cmd: /tmp/aws/install
-    creates: /usr/local/bin/aws
+# - name: download backup from S3
+#   command:
+#     cmd: aws s3 cp s3://{{ backupS3Bucket }}/{{ inventory_hostname }}.zip /tmp/backup.zip
+#     creates: /tmp/backup.zip
+#   when: backupFound.rc == 0
 
-- name: configure the AWS CLI
-  shell: aws configure set {{ item.key }} {{ item.value }}
-  no_log: true
-  with_dict:
-    aws_access_key_id: "{{ awsAccessKeyId }}"
-    aws_secret_access_key: "{{ awsAccessKey }}"
-    region: us-east-1
-    format: json
-  changed_when: false
+# - name: restore backup from S3
+#   unarchive:
+#     src: /tmp/backup.zip
+#     dest: /
+#     remote_src: yes
+#     creates: /backup
+#   when: backupFound.rc == 0
 
-- name: check if backup exists in S3
-  command:
-    cmd: aws s3 ls s3://{{ backupS3Bucket }}/{{ inventory_hostname }}.zip
-  register: backupFound
-  failed_when: false
-  changed_when: false
+# - name: create backup directory if it doesn't already exist
+#   file:
+#     path: /backup
+#     state: directory
+#     mode: 0755
 
-- name: download backup from S3
-  command:
-    cmd: aws s3 cp s3://{{ backupS3Bucket }}/{{ inventory_hostname }}.zip /tmp/backup.zip
-    creates: /tmp/backup.zip
-  when: backupFound.rc == 0
+# - name: copy backup script to host
+#   template:
+#     src: backup.j2
+#     dest: /usr/local/sbin/backup
+#     owner: root
+#     group: root
+#     mode: 0744
 
-- name: restore backup from S3
-  unarchive:
-    src: /tmp/backup.zip
-    dest: /
-    remote_src: yes
-    creates: /backup
-  when: backupFound.rc == 0
+# - name: configure daily backup to S3
+#   cron:
+#     name: backup
+#     state: present
+#     minute: 0
+#     hour: 3
+#     job: backup
 
-- name: create backup directory if it doesn't already exist
-  file:
-    path: /backup
-    state: directory
-    mode: 0755
+# - name: configure backup on shutdown
+#   copy:
+#     src: backup.service
+#     dest: /etc/systemd/system/backup.service
+#     owner: root
+#     group: root
 
-- name: copy backup script to host
-  template:
-    src: backup.j2
-    dest: /usr/local/sbin/backup
-    owner: root
-    group: root
-    mode: 0744
-
-- name: configure daily backup to S3
-  cron:
-    name: backup
-    state: present
-    minute: 0
-    hour: 3
-    job: backup
-
-- name: configure backup on shutdown
-  copy:
-    src: backup.service
-    dest: /etc/systemd/system/backup.service
-    owner: root
-    group: root
-
-- name: reload systemd
-  systemd:
-    name: backup
-    enabled: true
-    state: started
-    daemon_reload: true
-
-- name: enable memory hotplugging
-  replace:
-    dest: /etc/default/grub
-    regexp: '^(GRUB_CMDLINE_LINUX_DEFAULT="(?!.*\bmemhp_default_state=online\b).*)"$'
-    replace: '\1 memhp_default_state=online"'
-  register: hotplugUpdate
-
-- name: update grub configuration
-  command:
-    cmd: update-grub
-  when: hotplugUpdate.changed
-
-- name: check if reboot is required by os
-  stat:
-    path: /var/run/reboot-required
-  register: reboot
-
-- name: reboot if required
-  reboot:
-  when: reboot.stat.exists or hotplugUpdate.changed
+# - name: reload systemd
+#   systemd:
+#     name: backup
+#     enabled: true
+#     state: started
+#     daemon_reload: true

@@ -1,6 +1,0 @@
-#!/usr/bin/env ansible-playbook
----
-- hosts: net
-  roles:
-    - common
-    - net

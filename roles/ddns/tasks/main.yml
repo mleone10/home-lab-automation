@@ -1,0 +1,16 @@
+---
+- name: install required packages
+  apt:
+    name: "{{ item }}"
+    update_cache: true
+    cache_valid_time: 3600
+    state: latest
+  loop:
+    - curl
+
+- name: set up dynamic DNS for lab domain
+  cron:
+    name: dynamicDns
+    state: present
+    minute: "*/5"
+    job: "curl https://{{ googleDomainsUser }}:{{ googleDomainsPassword }}@domains.google.com/nic/update?hostname={{ ddnsHostname }} 2>&1 | /usr/bin/logger -t ddns"

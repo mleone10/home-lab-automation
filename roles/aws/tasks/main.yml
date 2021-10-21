@@ -1,0 +1,32 @@
+---
+- name: install required packages
+  apt:
+    name: "{{ item }}"
+    update_cache: true
+    cache_valid_time: 3600
+    state: latest
+  loop:
+    - unzip
+
+- name: download aws cli installer
+  unarchive:
+    src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+    dest: /tmp
+    remote_src: yes
+    creates: /tmp/aws
+    mode: 0755
+
+- name: install the aws cli
+  command:
+    cmd: /tmp/aws/install
+    creates: /usr/local/bin/aws
+
+- name: configure the aws cli
+  shell: aws configure set {{ item.key }} {{ item.value }}
+  no_log: true
+  with_dict:
+    aws_access_key_id: "{{ awsAccessKeyId }}"
+    aws_secret_access_key: "{{ awsAccessKey }}"
+    region: us-east-1
+    format: json
+  changed_when: false

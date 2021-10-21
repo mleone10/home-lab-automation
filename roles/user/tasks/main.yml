@@ -1,0 +1,29 @@
+---
+- name: ensure sudo group exists
+  group:
+    name: sudo
+    state: present
+
+- name: ensure sudo group has expected privileges
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: ^%sudo
+    line: "%sudo ALL=(ALL:ALL) ALL"
+    validate: /usr/sbin/visudo -cf %s
+    state: present
+
+- name: ensure non-root user has sudo access
+  user:
+    name: "{{ ansible_user }}"
+    groups:
+      - sudo
+    append: true
+    shell: /bin/bash
+    state: present
+
+- name: update authorized keys
+  authorized_key:
+    user: "{{ ansible_user }}"
+    state: present
+    key: "{{ item }}"
+  with_file: "{{ query('fileglob', '*.pub') }}"
