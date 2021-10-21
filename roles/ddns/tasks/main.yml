@@ -10,7 +10,9 @@
 
 - name: set up dynamic DNS for lab domain
   cron:
-    name: dynamicDns
+    name: ddns [{{ item.domain }}]
     state: present
     minute: "*/5"
-    job: "curl https://{{ googleDomainsUser }}:{{ googleDomainsPassword }}@domains.google.com/nic/update?hostname={{ ddnsHostname }} 2>&1 | /usr/bin/logger -t ddns"
+    job: "curl https://{{ item.googleDomainsUser }}:{{ item.googleDomainsPassword }}@domains.google.com/nic/update?hostname={{ item.domain }} 2>&1 | /usr/bin/logger -t ddns"
+  loop: "{{ ddnsEntries }}"
+  no_log: true
