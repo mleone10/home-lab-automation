@@ -4,6 +4,7 @@
   become: true
   become_method: su
   vars:
+    githubUsername: mleone10
     awsAccessKeyId: !vault |
       $ANSIBLE_VAULT;1.1;AES256
       61653530373566313232366365646135313037616130333833653466346631373765363266353061

@@ -21,9 +21,8 @@
     shell: /bin/bash
     state: present
 
-- name: update authorized keys
+- name: load authorized keys from github
   authorized_key:
     user: "{{ ansible_user }}"
     state: present
-    key: "{{ item }}"
-  with_file: "{{ query('fileglob', '*.pub') }}"
+    key: https://github.com/{{ githubUsername }}.keys
