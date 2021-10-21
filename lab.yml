@@ -1,8 +1,6 @@
 #! /usr/bin/ansible-playbook
 ---
 - hosts: castle
-  become: true
-  become_method: su
   vars:
     githubUsername: mleone10
     awsAccessKeyId: !vault |
