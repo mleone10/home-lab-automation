@@ -21,4 +21,5 @@
   roles:
     - common
     - user
+    - role-aliases
     - aws
