@@ -6,8 +6,7 @@
       - ca-certificates
       - curl
       - gnupg
-      - python-pip
-      - python-backports.ssl-match-hostname
+      - python3-pip
     state: present
 
 - name: add docker gpg key
@@ -35,6 +34,6 @@
 
 - name: install docker compose
   get_url:
-    url: https://github.com/docker/compose/releases/download/1.28.6/docker-compose-Linux-x86_64
+    url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64
     dest: /usr/local/sbin/docker-compose
     mode: 0744

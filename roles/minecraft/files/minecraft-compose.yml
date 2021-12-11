@@ -8,6 +8,7 @@ services:
     container_name: minecraft_server
     environment:
       EULA: "true"
+      VERSION: "1.18.1"
       INIT_MEMORY: "512M"
       MAX_MEMORY: "2560M"
       OVERRIDE_SERVER_PROPERTIES: "true"

@@ -1,6 +1,6 @@
 #! /usr/bin/ansible-playbook
 ---
-- hosts: castle
+- hosts: castle.avenir.mleone.dev
   vars:
     githubUsername: mleone10
     awsAccessKeyId: !vault |
@@ -22,3 +22,5 @@
     - common
     - user
     - aws
+    - docker
+    - minecraft
