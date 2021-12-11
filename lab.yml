@@ -21,6 +21,7 @@
   roles:
     - common
     - user
+    - role-aliases
     - aws
     - docker
     - minecraft

@@ -1,0 +1,5 @@
+---
+roles:
+  - name: role-aliases
+    src: https://github.com/mleone10/role-aliases.git
+    version: 3a84e9c
