@@ -1,0 +1,29 @@
+---
+- name: download space engineers docker compose file
+  copy:
+    src: space-engineers-compose.yml
+    dest: /root/space-engineers-compose.yml
+
+- name: ensure requisite directories are created
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "/backup/space-engineers/instances/TheMushroomKingdom"
+
+- name: create new star system if one does not exist
+  unarchive:
+    src: starSystem.zip
+    dest: /backup/space-engineers/instances/TheMushroomKingdom
+
+- name: copy server configuration file
+  copy:
+    src: SpaceEngineers-Dedicated.cfg
+    dest: /backup/space-engineers/instances/TheMushroomKingdom
+
+- name: start the space engineers service
+  become: true
+  command:
+    cmd: /usr/local/sbin/docker-compose -f space-engineers-compose.yml up -d
+    chdir: /root

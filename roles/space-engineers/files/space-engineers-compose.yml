@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  se-server:
+    image: devidian/spaceengineers
+    container_name: space-engineers
+    restart: always
+    volumes:
+      - /backup/space-engineers/instances:/appdata/space-engineers/instances
+      - /backup/space-engineers/SpaceEngineersDedicated:/appdata/space-engineers/SpaceEngineersDedicated
+      - /backup/space-engineers/steamcmd:/root/.steam
+    ports:
+      - target: 8080
+        published: 18080
+        protocol: tcp
+        mode: host
+      - target: 27016
+        published: 27016
+        protocol: udp
+        mode: host
+    environment:
+      - WINEDEBUG=-all
+      - INSTANCE_NAME=TheMushroomKingdom
