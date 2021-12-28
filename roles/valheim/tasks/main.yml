@@ -1,0 +1,20 @@
+---
+- name: download valheim docker compose file
+  copy:
+    src: valheim-compose.yml
+    dest: /root/valheim-compose.yml
+
+- name: create required directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - /backup/valheim/config
+    - /backup/valheim/data
+
+- name: start the valheim service
+  become: true
+  command:
+    cmd: /usr/local/sbin/docker-compose -f valheim-compose.yml up -d
+    chdir: /root

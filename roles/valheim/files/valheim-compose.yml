@@ -1,0 +1,21 @@
+version: "3"
+services:
+  valheim:
+    image: ghcr.io/lloesche/valheim-server
+    container_name: valheim_server
+    environment:
+      - SERVER_NAME=QTech
+      - SERVER_PUBLIC=false
+      - WORLD_NAME=Dedicated
+      - ADMINLIST_IDS=76561198000486274 76561197980042993 76561198027704903 76561197984387132 76561198037517392 76561198075013223
+      - PERMITTEDLIST_IDS=76561198000486274 76561197980042993 76561198027704903 76561197984387132 76561198037517392 76561198075013223
+    cap_add:
+      - sys_nice
+    volumes:
+      - /backup/valheim/config:/config
+      - /backup/valheim/data:/opt/valheim
+    ports:
+      - "2456-2457:2456-2457/udp"
+      - "9001:9001/tcp"
+    restart: always
+    stop_grace_period: 2m
